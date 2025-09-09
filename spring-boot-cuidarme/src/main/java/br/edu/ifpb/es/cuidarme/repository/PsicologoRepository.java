@@ -15,6 +15,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PsicologoRepository extends JpaRepository<Psicologo, UUID> {
 
+    @Query("SELECT p FROM Psicologo p WHERE LOWER(p.email) = LOWER(:email) AND p.senha = :senha")
+    Optional<Psicologo> findByEmailAndSenha(@Param("email") String email, @Param("senha") String senha);
+
     @Query("SELECT p FROM Psicologo p WHERE p.lookupId = :lookupId")
     Optional<Psicologo> findByLookupId(@Param("lookupId") UUID lookupId);
 

@@ -14,6 +14,7 @@ import br.edu.ifpb.es.cuidarme.model.Psicologo;
 import br.edu.ifpb.es.cuidarme.rest.dto.Atendimento.AtendimentoResponseDTO;
 import br.edu.ifpb.es.cuidarme.rest.dto.Paciente.PacienteResponseDTO;
 import br.edu.ifpb.es.cuidarme.rest.dto.Paciente.PacienteSalvarRequestDTO;
+import br.edu.ifpb.es.cuidarme.rest.dto.Psicologo.PsicologoLoginRequestDTO;
 import br.edu.ifpb.es.cuidarme.rest.dto.Psicologo.PsicologoResponseDTO;
 import br.edu.ifpb.es.cuidarme.rest.dto.Psicologo.PsicologoSalvarRequestDTO;
 import br.edu.ifpb.es.cuidarme.service.PacienteService;
@@ -58,6 +59,13 @@ public class PsicologoRestController implements PsicologoRestControllerApi {
         Psicologo objCriado = psicologoService.criar(objNovo);
         PsicologoResponseDTO resultado = psicologoMapper.from(objCriado);
 
+        return new ResponseEntity<>(resultado, HttpStatus.OK);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<PsicologoResponseDTO> login(@RequestBody PsicologoLoginRequestDTO loginRequestDTO) {
+        Psicologo psicologo = psicologoService.validarLogin(loginRequestDTO.getEmail(), loginRequestDTO.getSenha());
+        PsicologoResponseDTO resultado = psicologoMapper.from(psicologo);
         return new ResponseEntity<>(resultado, HttpStatus.OK);
     }
 
