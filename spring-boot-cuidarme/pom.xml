@@ -90,42 +90,35 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>pre-integration-test</id>
-						<goals>
-							<goal>start</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>post-integration-test</id>
-						<goals>
-							<goal>stop</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<!-- Plugin para gerar a documentação da API REST no formato yaml no diretório "docs": -->
-				<!-- OBS: ele sobe a aplicação para recuperar o yaml gerado em tempo de execução pelo springdoc-->
-				<!-- ./mvnw verify -->
-				<groupId>org.springdoc</groupId>
-				<artifactId>springdoc-openapi-maven-plugin</artifactId>
-				<version>1.1</version>
-				<executions>
-					<execution>
-						<id>integration-test</id>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-					</execution>
-				</executions>
+				<!-- JaCoCo: http://www.eclemma.org/jacoco/ -->
+				<!-- https://www.jacoco.org/jacoco/trunk/doc/maven.html -->
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.14</version>
 				<configuration>
-					<apiDocsUrl>http://localhost:8080/demo/api/v3/api-docs.yaml</apiDocsUrl>
-					<outputDir>${project.basedir}/docs</outputDir>
-					<outputFileName>openapi.yaml</outputFileName>
+					<haltOnFailure>true</haltOnFailure>
+					<rules>
+						<rule>
+							<element>CLASS</element>
+							<includes>
+								<include>br.edu.ifpb.es.cuidarme.rest.AtendimentoRestController</include>
+								<include>br.edu.ifpb.es.cuidarme.rest.PagamentoRestController</include>
+								<include>br.edu.ifpb.es.cuidarme.rest.ProntuarioRestController</include>
+							</includes>
+							<limits>
+								<limit>
+									<counter>LINE</counter>
+									<value>COVEREDRATIO</value>
+									<minimum>0.90</minimum>
+								</limit>
+								<limit>
+									<counter>BRANCH</counter>
+									<value>COVEREDRATIO</value>
+									<minimum>0.80</minimum>
+								</limit>
+							</limits>
+						</rule>
+					</rules>
 				</configuration>
 			</plugin>
 		</plugins>
