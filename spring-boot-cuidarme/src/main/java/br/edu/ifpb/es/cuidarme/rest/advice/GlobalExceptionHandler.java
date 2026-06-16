@@ -47,7 +47,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 	protected ResponseEntity<Object> handleMethodArgumentNotValid(
 			MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
 
-		return ResponseEntity.ofNullable(handleMethodArgumentNotValidException(ex));
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(handleMethodArgumentNotValidException(ex));
 	}
 	
 	private ProblemDetail handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
