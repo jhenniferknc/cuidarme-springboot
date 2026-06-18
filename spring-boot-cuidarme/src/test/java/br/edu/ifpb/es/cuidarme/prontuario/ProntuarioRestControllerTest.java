@@ -1,7 +1,9 @@
-package br.edu.ifpb.es.cuidarme.rest;
+package br.edu.ifpb.es.cuidarme.prontuario;
 
 import br.edu.ifpb.es.cuidarme.model.Prontuario;
+import br.edu.ifpb.es.cuidarme.rest.ProntuarioRestController;
 import br.edu.ifpb.es.cuidarme.rest.dto.Paciente.PacienteIdDTO;
+import br.edu.ifpb.es.cuidarme.rest.dto.Prontuario.ProntuarioBuscarDTO;
 import br.edu.ifpb.es.cuidarme.rest.dto.Prontuario.ProntuarioResponseDTO;
 import br.edu.ifpb.es.cuidarme.rest.dto.Prontuario.ProntuarioSalvarRequestDTO;
 import br.edu.ifpb.es.cuidarme.mapper.ProntuarioMapper;
@@ -11,12 +13,16 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -147,5 +153,36 @@ public class ProntuarioRestControllerTest {
                 .andExpect(status().isNoContent());
 
         verify(prontuarioService).remover(p);
+    }
+
+    @Test
+    void deveBuscarProntuariosPaginadosComQueryParams() throws Exception {
+        Prontuario p1 = mock(Prontuario.class);
+        Prontuario p2 = mock(Prontuario.class);
+
+        ProntuarioResponseDTO dto1 = new ProntuarioResponseDTO();
+        dto1.setLookupId(UUID.randomUUID());
+        dto1.setDescricao("Prontuario Paginado 1");
+
+        ProntuarioResponseDTO dto2 = new ProntuarioResponseDTO();
+        dto2.setLookupId(UUID.randomUUID());
+        dto2.setDescricao("Prontuario Paginado 2");
+
+        when(prontuarioMapper.from(p1)).thenReturn(dto1);
+        when(prontuarioMapper.from(p2)).thenReturn(dto2);
+
+        List<Prontuario> lista = Arrays.asList(p1, p2);
+        Page<Prontuario> paginaMock = new PageImpl<>(lista, PageRequest.of(0, 2), 2);
+
+        when(prontuarioService.buscar(any(ProntuarioBuscarDTO.class))).thenReturn(paginaMock);
+
+        mockMvc.perform(get("/prontuarios/buscar-paginado")
+                        .param("numeroPagina", "0")
+                        .param("tamanhoPagina", "2")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(2))
+                .andExpect(jsonPath("$.content[0].descricao").value("Prontuario Paginado 1"))
+                .andExpect(jsonPath("$.content[1].descricao").value("Prontuario Paginado 2"));
     }
 }
