@@ -1,9 +1,10 @@
-package br.edu.ifpb.es.cuidarme.rest;
+package br.edu.ifpb.es.cuidarme.pagamento;
 
 import br.edu.ifpb.es.cuidarme.mapper.PagamentoMapper;
 import br.edu.ifpb.es.cuidarme.model.Metodo;
 import br.edu.ifpb.es.cuidarme.model.Pagamento;
 import br.edu.ifpb.es.cuidarme.model.StatusPagamento;
+import br.edu.ifpb.es.cuidarme.rest.PagamentoRestController;
 import br.edu.ifpb.es.cuidarme.rest.dto.Pagamento.PagamentoResponseDTO;
 import br.edu.ifpb.es.cuidarme.rest.dto.Pagamento.PagamentoSalvarRequestDTO;
 import br.edu.ifpb.es.cuidarme.service.PacienteService;

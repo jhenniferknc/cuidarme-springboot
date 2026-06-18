@@ -1,6 +1,7 @@
-package br.edu.ifpb.es.cuidarme.rest;
+package br.edu.ifpb.es.cuidarme.prontuario;
 
 import br.edu.ifpb.es.cuidarme.model.Prontuario;
+import br.edu.ifpb.es.cuidarme.rest.ProntuarioRestController;
 import br.edu.ifpb.es.cuidarme.rest.dto.Paciente.PacienteIdDTO;
 import br.edu.ifpb.es.cuidarme.rest.dto.Prontuario.ProntuarioBuscarDTO;
 import br.edu.ifpb.es.cuidarme.rest.dto.Prontuario.ProntuarioResponseDTO;
@@ -180,7 +181,7 @@ public class ProntuarioRestControllerTest {
                         .param("tamanhoPagina", "2")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content.length()").value(2)) // O Spring Data Page coloca o array dentro do atributo "content"
+                .andExpect(jsonPath("$.content.length()").value(2))
                 .andExpect(jsonPath("$.content[0].descricao").value("Prontuario Paginado 1"))
                 .andExpect(jsonPath("$.content[1].descricao").value("Prontuario Paginado 2"));
     }
