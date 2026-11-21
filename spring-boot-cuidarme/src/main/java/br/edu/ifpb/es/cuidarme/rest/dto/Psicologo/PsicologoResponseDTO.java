@@ -10,6 +10,5 @@ public class PsicologoResponseDTO {
     private UUID lookupId;
     private String nome;
     private String email;
-    private String senha;
 
 }

@@ -64,7 +64,7 @@ public class PsicologoRestController implements PsicologoRestControllerApi {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<PsicologoResponseDTO> login(@RequestBody PsicologoLoginRequestDTO loginRequestDTO) {
+    public ResponseEntity<PsicologoResponseDTO> login(@RequestBody @Valid PsicologoLoginRequestDTO loginRequestDTO) throws SistemaException {
         Psicologo psicologo = psicologoService.validarLogin(loginRequestDTO.getEmail(), loginRequestDTO.getSenha());
         PsicologoResponseDTO resultado = psicologoMapper.from(psicologo);
         return new ResponseEntity<>(resultado, HttpStatus.OK);
@@ -112,7 +112,7 @@ public class PsicologoRestController implements PsicologoRestControllerApi {
         Psicologo objExistente = validarExiste(psicologoId);
         objExistente.setNome(dto.getNome());
         objExistente.setEmail(dto.getEmail());
-        objExistente.setSenha(dto.getSenha());
+        psicologoService.definirSenha(objExistente, dto.getSenha());
         Psicologo objAtualizado = psicologoService.atualizar(objExistente);
         PsicologoResponseDTO resultado = psicologoMapper.from(objAtualizado);
 

@@ -9,7 +9,6 @@ public class PsicologoBuscarDTO {
     private UUID lookupId;
     private String nome;
     private String email;
-    private String senha;
     private Integer numeroPagina = 0;
     private Integer tamanhoPagina = 10;
 
