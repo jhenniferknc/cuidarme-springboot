@@ -18,6 +18,7 @@ public class AtendimentoMapper {
 
     public Atendimento from(AtendimentoSalvarRequestDTO from) {
         Atendimento atendimento = new Atendimento();
+        atendimento.setLookupId(from.getLookupId());
         atendimento.setData(from.getData());
         atendimento.setLocalidade(from.getLocalidade());
         atendimento.setStatus(from.getStatus());
@@ -31,6 +32,11 @@ public class AtendimentoMapper {
         atendimentoResponseDTO.setData(from.getData());
         atendimentoResponseDTO.setLocalidade(from.getLocalidade());
         atendimentoResponseDTO.setStatus(from.getStatus());
+        atendimentoResponseDTO.setAtualizadoEm(from.getAtualizadoEm());
+        if (from.getPaciente() != null) {
+            atendimentoResponseDTO.setPacienteId(from.getPaciente().getLookupId());
+            atendimentoResponseDTO.setPacienteNome(from.getPaciente().getNome());
+        }
 
         return atendimentoResponseDTO;
     }
