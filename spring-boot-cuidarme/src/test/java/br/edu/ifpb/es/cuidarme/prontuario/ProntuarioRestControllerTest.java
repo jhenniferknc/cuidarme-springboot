@@ -93,7 +93,7 @@ public class ProntuarioRestControllerTest {
         when(prontuarioService.buscarPor(id)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/prontuarios/buscar/{prontuarioId}", id))
-                .andExpect(status().isInternalServerError())
+                .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.detail").value("Prontuário com o ID " + id + " não foi encontrado."));
     }
 

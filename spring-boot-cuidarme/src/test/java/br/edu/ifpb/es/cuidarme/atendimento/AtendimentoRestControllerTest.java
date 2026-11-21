@@ -232,7 +232,7 @@ public class AtendimentoRestControllerTest {
         mockMvc.perform(post("/atendimentos/cadastrar-pagamento/{atendimentoId}", id)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 
     @Test

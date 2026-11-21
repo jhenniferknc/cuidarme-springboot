@@ -66,7 +66,7 @@ public interface AtendimentoRestControllerApi {
                     description = "Operação realizada com sucesso.",
                     content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = AtendimentoResponseDTO.class))),
-            @ApiResponse(responseCode = "400",
+            @ApiResponse(responseCode = "404",
                     description = "Atendimento com lookupId não encontrado.",
                     content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = ProblemDetail.class))),
@@ -103,6 +103,6 @@ public interface AtendimentoRestControllerApi {
     })
     ResponseEntity<PagamentoResponseDTO> adicionarPagamento(
             @PathVariable UUID atendimentoId,
-            @RequestBody @Valid PagamentoSalvarRequestDTO dto);
+            @RequestBody @Valid PagamentoSalvarRequestDTO dto) throws SistemaException;
 
 }

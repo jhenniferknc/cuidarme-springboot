@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import br.edu.ifpb.es.cuidarme.exception.NaoEncontradoException;
 import br.edu.ifpb.es.cuidarme.exception.SistemaException;
 import br.edu.ifpb.es.cuidarme.mapper.ProntuarioMapper;
 import br.edu.ifpb.es.cuidarme.model.Prontuario;
@@ -73,7 +74,7 @@ public class ProntuarioRestController implements ProntuarioRestControllerApi {
     private Prontuario validarExiste(UUID lookupId) throws SistemaException {
         Optional<Prontuario> opt = prontuarioService.buscarPor(lookupId);
         if (opt.isEmpty()) {
-            throw new SistemaException("Prontuário com o ID " + lookupId + " não foi encontrado.");
+            throw new NaoEncontradoException("Prontuário com o ID " + lookupId + " não foi encontrado.");
         }
         return opt.get();
     }

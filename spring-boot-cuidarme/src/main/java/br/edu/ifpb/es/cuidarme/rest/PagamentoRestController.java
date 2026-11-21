@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import br.edu.ifpb.es.cuidarme.exception.NaoEncontradoException;
 import br.edu.ifpb.es.cuidarme.exception.SistemaException;
 import br.edu.ifpb.es.cuidarme.mapper.PagamentoMapper;
 import br.edu.ifpb.es.cuidarme.model.Pagamento;
@@ -81,10 +82,10 @@ public class PagamentoRestController implements PagamentoRestControllerApi {
         return ResponseEntity.noContent().build();
     }
 
-    private Pagamento validarExiste(UUID lookupId) {
+    private Pagamento validarExiste(UUID lookupId) throws NaoEncontradoException {
         Optional<Pagamento> opt = pagamentoService.buscarPor(lookupId);
         if (!opt.isPresent()) {
-            throw new IllegalArgumentException(String.format("Entidade 'Pagamento' de lookupId '%s' não foi encontrada!", lookupId));
+            throw new NaoEncontradoException(String.format("Entidade 'Pagamento' de lookupId '%s' não foi encontrada!", lookupId));
         }
         return opt.get();
     }
