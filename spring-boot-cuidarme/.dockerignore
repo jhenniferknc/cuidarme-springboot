@@ -1,0 +1,10 @@
+# nunca enviar credenciais para a imagem
+.env
+target/
+.mvn/
+mvnw
+mvnw.cmd
+docs/
+*.yaml
+.idea/
+.vscode/
