@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import br.edu.ifpb.es.cuidarme.exception.NaoEncontradoException;
 import br.edu.ifpb.es.cuidarme.exception.SistemaException;
 import br.edu.ifpb.es.cuidarme.mapper.AtendimentoMapper;
 import br.edu.ifpb.es.cuidarme.mapper.PacienteMapper;
@@ -130,7 +131,7 @@ public class PsicologoRestController implements PsicologoRestControllerApi {
     private Psicologo validarExiste(UUID lookupId) throws SistemaException {
         Optional<Psicologo> opt = psicologoService.buscarPor(lookupId);
         if (opt.isEmpty()) {
-            throw new SistemaException("Psicólogo com o ID " + lookupId + " não foi encontrado.");
+            throw new NaoEncontradoException("Psicólogo com o ID " + lookupId + " não foi encontrado.");
         }
         return opt.get();
     }

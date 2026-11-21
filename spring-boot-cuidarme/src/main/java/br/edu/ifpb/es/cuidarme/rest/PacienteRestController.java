@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import br.edu.ifpb.es.cuidarme.exception.NaoEncontradoException;
 import br.edu.ifpb.es.cuidarme.exception.SistemaException;
 import br.edu.ifpb.es.cuidarme.mapper.*;
 import br.edu.ifpb.es.cuidarme.model.Atendimento;
@@ -154,7 +155,7 @@ public class PacienteRestController implements PacienteRestControllerApi {
     private Paciente validarExiste(UUID lookupId) throws SistemaException {
         Optional<Paciente> opt = pacienteService.buscarPor(lookupId);
         if (opt.isEmpty()) {
-            throw new SistemaException("Paciente com o ID " + lookupId + " não foi encontrado.");
+            throw new NaoEncontradoException("Paciente com o ID " + lookupId + " não foi encontrado.");
         }
         return opt.get();
     }

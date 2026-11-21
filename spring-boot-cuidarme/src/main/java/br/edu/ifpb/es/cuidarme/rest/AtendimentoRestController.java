@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import br.edu.ifpb.es.cuidarme.exception.NaoEncontradoException;
 import br.edu.ifpb.es.cuidarme.exception.SistemaException;
 import br.edu.ifpb.es.cuidarme.mapper.AtendimentoMapper;
 import br.edu.ifpb.es.cuidarme.mapper.PagamentoMapper;
@@ -43,9 +44,9 @@ public class AtendimentoRestController implements AtendimentoRestControllerApi {
 
     @Override
     @PostMapping("/cadastrar-pagamento/{atendimentoId}")
-    public ResponseEntity<PagamentoResponseDTO> adicionarPagamento(@PathVariable UUID atendimentoId, @RequestBody @Valid PagamentoSalvarRequestDTO dto) {
+    public ResponseEntity<PagamentoResponseDTO> adicionarPagamento(@PathVariable UUID atendimentoId, @RequestBody @Valid PagamentoSalvarRequestDTO dto) throws NaoEncontradoException {
         Atendimento atendimento = atendimentoService.buscarPor(atendimentoId)
-                .orElseThrow(() -> new IllegalArgumentException("Atendimento com ID " + atendimentoId + " não encontrado."));
+                .orElseThrow(() -> new NaoEncontradoException("Atendimento com ID " + atendimentoId + " não encontrado."));
         Pagamento novoPagamento = pagamentoMapper.from(dto);
         novoPagamento.setAtendimento(atendimento);
         novoPagamento.setPaciente(atendimento.getPaciente());
@@ -99,7 +100,7 @@ public class AtendimentoRestController implements AtendimentoRestControllerApi {
     private Atendimento validarExiste(UUID lookupId) throws SistemaException {
         Optional<Atendimento> opt = atendimentoService.buscarPor(lookupId);
         if (opt.isEmpty()) {
-            throw new SistemaException("Atendimento com o ID " + lookupId + " não foi encontrado.");
+            throw new NaoEncontradoException("Atendimento com o ID " + lookupId + " não foi encontrado.");
         }
         return opt.get();
     }

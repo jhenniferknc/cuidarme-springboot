@@ -119,7 +119,7 @@ public class PagamentoRestControllerTest {
                 .thenReturn(Optional.empty());
 
         mockMvc.perform(get("/pagamentos/buscar/{pagamentoId}", id))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -183,7 +183,7 @@ public class PagamentoRestControllerTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(requestDTO))
                 )
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -211,6 +211,6 @@ public class PagamentoRestControllerTest {
                 .thenReturn(Optional.empty());
 
         mockMvc.perform(delete("/pagamentos/remover/{pagamentoId}", id))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 }
