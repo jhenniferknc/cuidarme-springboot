@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import br.edu.ifpb.es.cuidarme.exception.ConflitoException;
 import br.edu.ifpb.es.cuidarme.exception.NaoEncontradoException;
 import br.edu.ifpb.es.cuidarme.exception.SistemaException;
 import br.edu.ifpb.es.cuidarme.mapper.AtendimentoMapper;
@@ -74,6 +75,19 @@ public class PsicologoRestController implements PsicologoRestControllerApi {
     @PostMapping("/cadastrar-pacientes/{psicologoId}")
     public ResponseEntity<PacienteResponseDTO> adicionarPaciente(@PathVariable UUID psicologoId, @RequestBody @Valid PacienteSalvarRequestDTO dto) throws SistemaException {
         Psicologo psicologo = validarExiste(psicologoId);
+
+        if (dto.getLookupId() != null) {
+            Optional<Paciente> existente = pacienteService.buscarPor(dto.getLookupId());
+            if (existente.isPresent()) {
+                Paciente paciente = existente.get();
+                if (paciente.getPsicologo() == null
+                        || !psicologoId.equals(paciente.getPsicologo().getLookupId())) {
+                    throw new ConflitoException("Já existe um paciente com o ID " + dto.getLookupId() + ".");
+                }
+                return new ResponseEntity<>(pacienteMapper.from(paciente), HttpStatus.OK);
+            }
+        }
+
         Paciente novoPaciente = pacienteMapper.from(dto);
         novoPaciente.setPsicologo(psicologo);
         Paciente pacienteCriado = pacienteService.criar(novoPaciente);

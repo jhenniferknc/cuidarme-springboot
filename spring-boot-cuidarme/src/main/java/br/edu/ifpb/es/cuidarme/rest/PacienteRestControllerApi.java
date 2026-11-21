@@ -42,14 +42,22 @@ public interface PacienteRestControllerApi {
     ResponseEntity<List<PacienteResponseDTO>> listar() throws SistemaException;
 
     @Operation(summary = "Atualizar dados de um paciente existente.",
-            description = "Atualiza dados de um paciente existente com base no seu lookupId.")
+            description = "Atualiza dados de um paciente existente com base no seu lookupId. O campo lookupId do corpo é ignorado.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     description = "Operação realizada com sucesso.",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = PacienteResponseDTO.class))),
             @ApiResponse(responseCode = "400",
+                    description = "Dados inválidos.",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "404",
                     description = "Paciente com lookupId não encontrado.",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "409",
+                    description = "Já existe outro paciente com este CPF.",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ProblemDetail.class))),
             @ApiResponse(responseCode = "500",
@@ -63,15 +71,11 @@ public interface PacienteRestControllerApi {
                                                   PacienteSalvarRequestDTO dto) throws SistemaException;
 
     @Operation(summary = "Remover um paciente existente.",
-            description = "Remove um paciente existente com base no seu lookupId.")
+            description = "Remove um paciente com base no seu lookupId. É idempotente: se o paciente não existir, também retorna 204.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204",
-                    description = "Operação realizada com sucesso.",
+                    description = "Paciente removido (ou já não existia).",
                     content = @Content),
-            @ApiResponse(responseCode = "400",
-                    description = "Paciente com lookupId não encontrado.",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ProblemDetail.class))),
             @ApiResponse(responseCode = "500",
                     description = "Erro inesperado.",
                     content = @Content(mediaType = "application/json",

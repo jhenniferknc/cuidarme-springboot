@@ -99,8 +99,7 @@ public class PacienteRestController implements PacienteRestControllerApi {
     @Override
     @DeleteMapping("/remover/{pacienteId}")
     public ResponseEntity<Void> remover(@PathVariable UUID pacienteId) throws SistemaException {
-        Paciente obj = validarExiste(pacienteId);
-        pacienteService.remover(obj);
+        pacienteService.buscarPor(pacienteId).ifPresent(pacienteService::remover);
 
         return ResponseEntity.noContent().build();
     }

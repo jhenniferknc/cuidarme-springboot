@@ -7,6 +7,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class EnderecoMapper {
     public Endereco from (EnderecoDTO from){
+        if (from == null || estaVazio(from)) {
+            return null;
+        }
         Endereco endereco = new Endereco();
         endereco.setCep(from.getCep());
         endereco.setCidade(from.getCidade());
@@ -17,6 +20,9 @@ public class EnderecoMapper {
     }
 
     public EnderecoDTO from(Endereco from){
+        if (from == null) {
+            return null;
+        }
         EnderecoDTO enderecoDTO = new EnderecoDTO();
         enderecoDTO.setCep(from.getCep());
         enderecoDTO.setCidade(from.getCidade());
@@ -24,5 +30,14 @@ public class EnderecoMapper {
         enderecoDTO.setLogradouro(from.getLogradouro());
         enderecoDTO.setNumero(from.getNumero());
         return enderecoDTO;
+    }
+
+    private boolean estaVazio(EnderecoDTO dto) {
+        return vazio(dto.getCep()) && vazio(dto.getLogradouro()) && vazio(dto.getNumero())
+                && vazio(dto.getCidade()) && vazio(dto.getEstado());
+    }
+
+    private boolean vazio(String valor) {
+        return valor == null || valor.isBlank();
     }
 }
