@@ -21,7 +21,6 @@ public class PsicologoMapper {
         psicologoResponseDTO.setNome(from.getNome());
         psicologoResponseDTO.setLookupId(from.getLookupId());
         psicologoResponseDTO.setEmail(from.getEmail());
-        psicologoResponseDTO.setSenha(from.getSenha());
         return psicologoResponseDTO;
     }
 

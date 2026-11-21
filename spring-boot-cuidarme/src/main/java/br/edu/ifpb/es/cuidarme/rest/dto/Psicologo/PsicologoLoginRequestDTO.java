@@ -1,15 +1,15 @@
 package br.edu.ifpb.es.cuidarme.rest.dto.Psicologo;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
 @Data
 public class PsicologoLoginRequestDTO {
 
+    @NotBlank
     private String email;
+
+    @NotBlank
     private String senha;
 
 }

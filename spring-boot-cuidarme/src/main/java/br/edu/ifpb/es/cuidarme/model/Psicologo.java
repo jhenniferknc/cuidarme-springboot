@@ -80,7 +80,6 @@ public class Psicologo {
                 "lookupId=" + lookupId +
                 ", nome='" + nome + '\'' +
                 ", email='" + email + '\'' +
-                ", senha='" + senha + '\'' +
                 ", pacientes=" + pacientes +
                 ", atendimentos=" + atendimentos +
                 ", prontuarios=" + prontuarios +
