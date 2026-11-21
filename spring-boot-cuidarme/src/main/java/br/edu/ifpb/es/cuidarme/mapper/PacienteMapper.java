@@ -23,6 +23,7 @@ public class PacienteMapper {
 
     public Paciente from(PacienteSalvarRequestDTO from) {
         Paciente paciente = new Paciente();
+        paciente.setLookupId(from.getLookupId());
         paciente.setNome(from.getNome());
         paciente.setCpf(from.getCpf());
         paciente.setRg(from.getRg());
@@ -55,6 +56,7 @@ public class PacienteMapper {
         pacienteResponseDTO.setEnderecoTrabalho(enderecoMapper.from(from.getEnderecoTrabalho()));
         pacienteResponseDTO.setInfoAdicionais(from.getInfoAdicionais());
         pacienteResponseDTO.setContatoEmergencia(contatoEmergenciaMapper.from(from.getContatoEmergencia()));
+        pacienteResponseDTO.setAtualizadoEm(from.getAtualizadoEm());
 
         if (from.getProntuarios() != null) {
             List<Prontuario> prontuarios = from.getProntuarios();

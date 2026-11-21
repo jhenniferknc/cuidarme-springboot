@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -130,10 +131,20 @@ public class Paciente {
     @Getter
     @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Pagamento> pagamentos = new ArrayList<>();
+    @Column(name = "ATUALIZADO_EM")
+    private LocalDateTime atualizadoEm;
 
     @PrePersist
     private void init() {
-        this.lookupId = UUID.randomUUID();
+        if (this.lookupId == null) {
+            this.lookupId = UUID.randomUUID();
+        }
+        this.atualizadoEm = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    private void aoAtualizar() {
+        this.atualizadoEm = LocalDateTime.now();
     }
 
     @Override

@@ -2,15 +2,18 @@ package br.edu.ifpb.es.cuidarme.rest.dto.Paciente;
 
 import br.edu.ifpb.es.cuidarme.rest.dto.ContatoEmergencia.ContatoEmergenciaDTO;
 import br.edu.ifpb.es.cuidarme.rest.dto.Endereco.EnderecoDTO;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Data
 public class PacienteSalvarRequestDTO {
-
+    private UUID lookupId;
     @NotBlank
     private String nome;
     @NotBlank
@@ -31,11 +34,24 @@ public class PacienteSalvarRequestDTO {
     private String telefone;
     @NotNull
     private EnderecoDTO enderecoPessoal;
-    @NotNull
     private EnderecoDTO enderecoTrabalho;
-    @NotNull
     private String infoAdicionais;
-    @NotNull
     private ContatoEmergenciaDTO contatoEmergencia;
 
+    @JsonIgnore
+    @AssertTrue(message = "Endereço pessoal deve ter CEP, logradouro, cidade e estado.")
+    public boolean isEnderecoPessoalCompleto() {
+        if (enderecoPessoal == null) {
+            return true;
+        }
+        return naoVazio(enderecoPessoal.getCep())
+                && naoVazio(enderecoPessoal.getLogradouro())
+                && naoVazio(enderecoPessoal.getCidade())
+                && naoVazio(enderecoPessoal.getEstado());
+    }
+
+    private static boolean naoVazio(String valor) {
+        return valor != null && !valor.isBlank();
+    }
+    
 }

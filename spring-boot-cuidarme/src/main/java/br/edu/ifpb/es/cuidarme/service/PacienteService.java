@@ -4,11 +4,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import br.edu.ifpb.es.cuidarme.exception.ConflitoException;
 import br.edu.ifpb.es.cuidarme.model.Paciente;
 import br.edu.ifpb.es.cuidarme.repository.PacienteRepository;
 import br.edu.ifpb.es.cuidarme.rest.dto.Paciente.PacienteBuscarDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -17,11 +17,19 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class PacienteService {
 
+    static final String MENSAGEM_CPF_DUPLICADO = "Já existe um paciente cadastrado com este CPF.";
+
     @Autowired
     private PacienteRepository repository;
 
     @Transactional
-    public Paciente criar(Paciente obj) {
+    public Paciente criar(Paciente obj) throws ConflitoException {
+        boolean cpfEmUso = obj.getLookupId() == null
+                ? repository.existsByCpf(obj.getCpf())
+                : repository.existsByCpfAndLookupIdNot(obj.getCpf(), obj.getLookupId());
+        if (cpfEmUso) {
+            throw new ConflitoException(MENSAGEM_CPF_DUPLICADO);
+        }
         return repository.save(obj);
     }
 
@@ -30,16 +38,14 @@ public class PacienteService {
     }
 
     public Optional<Paciente> buscarPor(UUID lookupId) {
-        Paciente objExemplo = Paciente.builder()
-                .lookupId(lookupId)
-                .build();
-        Example<Paciente> exemplo = Example.of(objExemplo);
-
-        return repository.findOne(exemplo);
+        return repository.findById(lookupId);
     }
 
     @Transactional
-    public Paciente atualizar(Paciente obj) {
+    public Paciente atualizar(Paciente obj) throws ConflitoException {
+        if (repository.existsByCpfAndLookupIdNot(obj.getCpf(), obj.getLookupId())) {
+            throw new ConflitoException(MENSAGEM_CPF_DUPLICADO);
+        }
         return repository.save(obj);
     }
 

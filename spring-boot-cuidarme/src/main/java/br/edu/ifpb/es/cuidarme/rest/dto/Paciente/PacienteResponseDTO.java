@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,6 +29,7 @@ public class PacienteResponseDTO {
         private EnderecoDTO enderecoTrabalho;
         private String infoAdicionais;
         private ContatoEmergenciaDTO contatoEmergencia;
+        private LocalDateTime atualizadoEm;
         @Getter
         @Setter
         private List<ProntuarioResponseDTO> prontuarios;

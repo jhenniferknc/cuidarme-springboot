@@ -42,14 +42,27 @@ public interface PsicologoRestControllerApi {
                                                    PsicologoSalvarRequestDTO dto) throws SistemaException;
 
     @Operation(summary = "Cadastrar paciente de um psicólogo existente.",
-               description = "Cadastra paciente de um psicólogo especificado pelo lookupId.")
+               description = "Cadastra paciente de um psicólogo especificado pelo lookupId. O app pode enviar o lookupId do paciente "
+                       + "(gerado offline); se esse paciente já existir para o mesmo psicólogo, a chamada é tratada como reenvio e retorna 200.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
-                    description = "Operação realizada com sucesso.",
+            @ApiResponse(responseCode = "201",
+                    description = "Paciente cadastrado.",
                     content = @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = PacienteResponseDTO.class))),
+                            schema = @Schema(implementation = PacienteResponseDTO.class))),
+            @ApiResponse(responseCode = "200",
+                    description = "Reenvio: o paciente com este lookupId já existia e foi devolvido sem alterações.",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = PacienteResponseDTO.class))),
             @ApiResponse(responseCode = "400",
+                    description = "Dados inválidos.",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "404",
                     description = "Psicólogo com lookupId não encontrado.",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "409",
+                    description = "CPF já cadastrado, ou lookupId já usado por paciente de outro psicólogo.",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ProblemDetail.class))),
             @ApiResponse(responseCode = "500",

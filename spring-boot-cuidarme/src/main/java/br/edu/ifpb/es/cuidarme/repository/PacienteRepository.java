@@ -13,10 +13,14 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface PacienteRepository extends JpaRepository<Paciente, Long> {
+public interface PacienteRepository extends JpaRepository<Paciente, UUID> {
 
     @Query("SELECT p FROM Paciente p WHERE p.lookupId = :lookupId")
     Optional<Paciente> findByLookupId(@Param("lookupId") UUID lookupId);
+
+    boolean existsByCpf(String cpf);
+
+    boolean existsByCpfAndLookupIdNot(String cpf, UUID lookupId);
 
     @Query("""
         SELECT p FROM Paciente p
