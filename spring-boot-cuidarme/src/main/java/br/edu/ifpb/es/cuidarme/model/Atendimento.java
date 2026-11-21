@@ -49,10 +49,20 @@ public class Atendimento {
     @ManyToOne
     @JoinColumn(name = "PACIENTE_ID")
     private Paciente paciente;
+    @Column(name = "ATUALIZADO_EM")
+    private LocalDateTime atualizadoEm;
 
     @PrePersist
     private void init() {
-        this.lookupId = UUID.randomUUID();
+        if (this.lookupId == null) {
+            this.lookupId = UUID.randomUUID();
+        }
+        this.atualizadoEm = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    private void aoAtualizar() {
+        this.atualizadoEm = LocalDateTime.now();
     }
 
     @Override

@@ -13,5 +13,8 @@ public class AtendimentoResponseDTO {
     private LocalDateTime data;
     private String localidade;
     private StatusAtendimento status;
+    private UUID pacienteId;
+    private String pacienteNome;
+    private LocalDateTime atualizadoEm;
 
 }
