@@ -6,9 +6,12 @@ import br.edu.ifpb.es.cuidarme.mapper.ContatoEmergenciaMapper;
 import br.edu.ifpb.es.cuidarme.mapper.EnderecoMapper;
 import br.edu.ifpb.es.cuidarme.mapper.PacienteMapper;
 import br.edu.ifpb.es.cuidarme.mapper.ProntuarioMapper;
+import br.edu.ifpb.es.cuidarme.model.Atendimento;
 import br.edu.ifpb.es.cuidarme.model.Endereco;
 import br.edu.ifpb.es.cuidarme.model.Paciente;
 import br.edu.ifpb.es.cuidarme.rest.PacienteRestController;
+import br.edu.ifpb.es.cuidarme.rest.dto.Atendimento.AtendimentoResponseDTO;
+import br.edu.ifpb.es.cuidarme.rest.dto.Atendimento.AtendimentoSalvarRequestDTO;
 import br.edu.ifpb.es.cuidarme.service.AtendimentoService;
 import br.edu.ifpb.es.cuidarme.service.PacienteService;
 import br.edu.ifpb.es.cuidarme.service.ProntuarioService;
@@ -29,6 +32,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -185,6 +189,78 @@ class PacienteRestControllerTest {
                         .content(CORPO_SEM_OPCIONAIS))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.detail").value("Já existe um paciente cadastrado com este CPF."));
+    }
+
+    private static final String CORPO_ATENDIMENTO = """
+            {"lookupId": "%s", "data": "2026-12-01T14:00:00", "localidade": "Online", "status": "AGENDADO"}
+            """;
+
+    private AtendimentoResponseDTO respostaAtendimento(UUID id) {
+        AtendimentoResponseDTO dto = new AtendimentoResponseDTO();
+        dto.setLookupId(id);
+        return dto;
+    }
+
+    @Test
+    void cadastrarAtendimentoNovoDeveRetornar201() throws Exception {
+        UUID pacienteId = UUID.randomUUID();
+        UUID atendimentoId = UUID.randomUUID();
+        Atendimento mapeado = new Atendimento();
+
+        when(pacienteService.buscarPor(pacienteId)).thenReturn(Optional.of(pacienteExistente(pacienteId)));
+        when(atendimentoService.buscarPor(atendimentoId)).thenReturn(Optional.empty());
+        when(atendimentoMapper.from(any(AtendimentoSalvarRequestDTO.class))).thenReturn(mapeado);
+        when(atendimentoService.criar(mapeado)).thenReturn(mapeado);
+        when(atendimentoMapper.from(mapeado)).thenReturn(respostaAtendimento(atendimentoId));
+
+        mockMvc.perform(post("/pacientes/cadastrar-atendimentos/{id}", pacienteId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(CORPO_ATENDIMENTO.formatted(atendimentoId)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.lookupId").value(atendimentoId.toString()));
+
+        verify(atendimentoService).criar(mapeado);
+    }
+
+    @Test
+    void reenvioDoMesmoAtendimentoDeveRetornar200SemCriarDeNovo() throws Exception {
+        UUID pacienteId = UUID.randomUUID();
+        UUID atendimentoId = UUID.randomUUID();
+        Paciente paciente = pacienteExistente(pacienteId);
+        Atendimento existente = new Atendimento();
+        existente.setLookupId(atendimentoId);
+        existente.setPaciente(paciente);
+
+        when(pacienteService.buscarPor(pacienteId)).thenReturn(Optional.of(paciente));
+        when(atendimentoService.buscarPor(atendimentoId)).thenReturn(Optional.of(existente));
+        when(atendimentoMapper.from(existente)).thenReturn(respostaAtendimento(atendimentoId));
+
+        mockMvc.perform(post("/pacientes/cadastrar-atendimentos/{id}", pacienteId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(CORPO_ATENDIMENTO.formatted(atendimentoId)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.lookupId").value(atendimentoId.toString()));
+
+        verify(atendimentoService, never()).criar(any());
+    }
+
+    @Test
+    void idDeAtendimentoDeOutroPacienteDeveRetornar409() throws Exception {
+        UUID pacienteId = UUID.randomUUID();
+        UUID atendimentoId = UUID.randomUUID();
+        Atendimento existente = new Atendimento();
+        existente.setLookupId(atendimentoId);
+        existente.setPaciente(pacienteExistente(UUID.randomUUID()));
+
+        when(pacienteService.buscarPor(pacienteId)).thenReturn(Optional.of(pacienteExistente(pacienteId)));
+        when(atendimentoService.buscarPor(atendimentoId)).thenReturn(Optional.of(existente));
+
+        mockMvc.perform(post("/pacientes/cadastrar-atendimentos/{id}", pacienteId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(CORPO_ATENDIMENTO.formatted(atendimentoId)))
+                .andExpect(status().isConflict());
+
+        verify(atendimentoService, never()).criar(any());
     }
 
 }

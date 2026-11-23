@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import br.edu.ifpb.es.cuidarme.exception.ConflitoException;
 import br.edu.ifpb.es.cuidarme.model.Paciente;
+import br.edu.ifpb.es.cuidarme.model.Psicologo;
 import br.edu.ifpb.es.cuidarme.repository.PacienteRepository;
 import br.edu.ifpb.es.cuidarme.rest.dto.Paciente.PacienteBuscarDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +52,13 @@ public class PacienteService {
 
     @Transactional
     public void remover(Paciente obj) {
+        Psicologo psicologo = obj.getPsicologo();
+        if (psicologo != null) {
+            UUID id = obj.getLookupId();
+            psicologo.getPacientes().removeIf(p -> id.equals(p.getLookupId()));
+            psicologo.getAtendimentos().removeIf(a -> a.getPaciente() != null && id.equals(a.getPaciente().getLookupId()));
+            psicologo.getProntuarios().removeIf(pr -> pr.getPaciente() != null && id.equals(pr.getPaciente().getLookupId()));
+        }
         repository.delete(obj);
     }
 

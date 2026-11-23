@@ -1,7 +1,9 @@
 package br.edu.ifpb.es.cuidarme.paciente;
 
 import br.edu.ifpb.es.cuidarme.exception.ConflitoException;
+import br.edu.ifpb.es.cuidarme.model.Atendimento;
 import br.edu.ifpb.es.cuidarme.model.Paciente;
+import br.edu.ifpb.es.cuidarme.model.Psicologo;
 import br.edu.ifpb.es.cuidarme.repository.PacienteRepository;
 import br.edu.ifpb.es.cuidarme.service.PacienteService;
 import org.junit.jupiter.api.Test;
@@ -84,4 +86,30 @@ class PacienteServiceTest {
         assertSame(p, service.atualizar(p));
     }
 
+
+    @Test
+    void removerDeveTirarOPacienteEOsAtendimentosDasListasDoPsicologo() {
+        Psicologo psicologo = new Psicologo();
+        Paciente removido = paciente(UUID.randomUUID(), "12345678901");
+        Paciente outro = paciente(UUID.randomUUID(), "10987654321");
+        removido.setPsicologo(psicologo);
+
+        Atendimento doRemovido = new Atendimento();
+        doRemovido.setPaciente(removido);
+        Atendimento doOutro = new Atendimento();
+        doOutro.setPaciente(outro);
+
+        psicologo.getPacientes().add(removido);
+        psicologo.getPacientes().add(outro);
+        psicologo.getAtendimentos().add(doRemovido);
+        psicologo.getAtendimentos().add(doOutro);
+
+        service.remover(removido);
+
+        assertEquals(1, psicologo.getPacientes().size());
+        assertSame(outro, psicologo.getPacientes().get(0));
+        assertEquals(1, psicologo.getAtendimentos().size());
+        assertSame(doOutro, psicologo.getAtendimentos().get(0));
+        verify(repository).delete(removido);
+    }
 }

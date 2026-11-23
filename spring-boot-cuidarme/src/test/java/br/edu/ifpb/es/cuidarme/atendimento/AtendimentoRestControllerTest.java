@@ -1,5 +1,7 @@
 package br.edu.ifpb.es.cuidarme.atendimento;
 
+import br.edu.ifpb.es.cuidarme.exception.EstadoInvalidoException;
+import static org.mockito.ArgumentMatchers.eq;
 import br.edu.ifpb.es.cuidarme.mapper.AtendimentoMapper;
 import br.edu.ifpb.es.cuidarme.mapper.PagamentoMapper;
 import br.edu.ifpb.es.cuidarme.model.*;
@@ -330,4 +332,87 @@ public class AtendimentoRestControllerTest {
 
         assertEquals(dataEsperada, pagamentoComData.getData());
     }
+
+    @Test
+    void deveRemarcarAtendimento() throws Exception {
+        UUID id = UUID.randomUUID();
+        Atendimento atendimento = new Atendimento();
+        Atendimento remarcado = new Atendimento();
+        AtendimentoResponseDTO resposta = new AtendimentoResponseDTO();
+        resposta.setLookupId(id);
+        resposta.setStatus(StatusAtendimento.REMARCADO);
+
+        when(atendimentoService.buscarPor(id)).thenReturn(Optional.of(atendimento));
+        when(atendimentoService.remarcar(eq(atendimento), eq(LocalDateTime.of(2026, 12, 3, 9, 30)), eq("Consultório")))
+                .thenReturn(remarcado);
+        when(atendimentoMapper.from(remarcado)).thenReturn(resposta);
+
+        mockMvc.perform(patch("/atendimentos/remarcar/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"data\": \"2026-12-03T09:30:00\", \"localidade\": \"Consultório\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("REMARCADO"));
+    }
+
+    @Test
+    void remarcarSemLocalidadeDeveRetornar400() throws Exception {
+        mockMvc.perform(patch("/atendimentos/remarcar/{id}", UUID.randomUUID())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"data\": \"2026-12-03T09:30:00\", \"localidade\": \"\"}"))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(atendimentoService);
+    }
+
+    @Test
+    void remarcarAtendimentoCanceladoDeveRetornar400() throws Exception {
+        UUID id = UUID.randomUUID();
+        Atendimento atendimento = new Atendimento();
+        when(atendimentoService.buscarPor(id)).thenReturn(Optional.of(atendimento));
+        when(atendimentoService.remarcar(any(), any(), any()))
+                .thenThrow(new EstadoInvalidoException("Não é possível remarcar um atendimento cancelado."));
+
+        mockMvc.perform(patch("/atendimentos/remarcar/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"data\": \"2026-12-03T09:30:00\", \"localidade\": \"Online\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.detail").value("Não é possível remarcar um atendimento cancelado."));
+    }
+
+    @Test
+    void remarcarAtendimentoInexistenteDeveRetornar404() throws Exception {
+        UUID id = UUID.randomUUID();
+        when(atendimentoService.buscarPor(id)).thenReturn(Optional.empty());
+
+        mockMvc.perform(patch("/atendimentos/remarcar/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"data\": \"2026-12-03T09:30:00\", \"localidade\": \"Online\"}"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void deveCancelarAtendimento() throws Exception {
+        UUID id = UUID.randomUUID();
+        Atendimento atendimento = new Atendimento();
+        AtendimentoResponseDTO resposta = new AtendimentoResponseDTO();
+        resposta.setStatus(StatusAtendimento.CANCELADO);
+
+        when(atendimentoService.buscarPor(id)).thenReturn(Optional.of(atendimento));
+        when(atendimentoService.cancelar(atendimento)).thenReturn(atendimento);
+        when(atendimentoMapper.from(atendimento)).thenReturn(resposta);
+
+        mockMvc.perform(patch("/atendimentos/cancelar/{id}", id))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("CANCELADO"));
+    }
+
+    @Test
+    void cancelarAtendimentoInexistenteDeveRetornar404() throws Exception {
+        UUID id = UUID.randomUUID();
+        when(atendimentoService.buscarPor(id)).thenReturn(Optional.empty());
+
+        mockMvc.perform(patch("/atendimentos/cancelar/{id}", id))
+                .andExpect(status().isNotFound());
+    }
+
 }

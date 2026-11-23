@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import br.edu.ifpb.es.cuidarme.exception.SistemaException;
+import br.edu.ifpb.es.cuidarme.rest.dto.Atendimento.AtendimentoRemarcarDTO;
 import br.edu.ifpb.es.cuidarme.rest.dto.Atendimento.AtendimentoResponseDTO;
 import br.edu.ifpb.es.cuidarme.rest.dto.Atendimento.AtendimentoSalvarRequestDTO;
 import br.edu.ifpb.es.cuidarme.rest.dto.Pagamento.PagamentoResponseDTO;
@@ -104,5 +105,55 @@ public interface AtendimentoRestControllerApi {
     ResponseEntity<PagamentoResponseDTO> adicionarPagamento(
             @PathVariable UUID atendimentoId,
             @RequestBody @Valid PagamentoSalvarRequestDTO dto) throws SistemaException;
+
+    @Operation(summary = "Remarcar um atendimento.",
+            description = "Muda a data e a localidade do atendimento e marca o status como REMARCADO. "
+                    + "Não aceita atendimentos cancelados ou concluídos.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Atendimento remarcado.",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = AtendimentoResponseDTO.class))),
+            @ApiResponse(responseCode = "400",
+                    description = "Dados inválidos, ou atendimento cancelado/concluído.",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "404",
+                    description = "Atendimento não encontrado.",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "500",
+                    description = "Erro inesperado.",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ProblemDetail.class))),
+    })
+    ResponseEntity<AtendimentoResponseDTO> remarcar(@Parameter(description = "LookupId do atendimento a ser remarcado.")
+                                                    UUID lookupId,
+                                                    @RequestBody(description = "Nova data e localidade.")
+                                                    AtendimentoRemarcarDTO dto) throws SistemaException;
+
+    @Operation(summary = "Cancelar um atendimento.",
+            description = "Marca o status do atendimento como CANCELADO. É idempotente: cancelar de novo não muda nada. "
+                    + "Não aceita atendimentos concluídos.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Atendimento cancelado (ou já estava cancelado).",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = AtendimentoResponseDTO.class))),
+            @ApiResponse(responseCode = "400",
+                    description = "Atendimento concluído não pode ser cancelado.",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "404",
+                    description = "Atendimento não encontrado.",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "500",
+                    description = "Erro inesperado.",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ProblemDetail.class))),
+    })
+    ResponseEntity<AtendimentoResponseDTO> cancelar(@Parameter(description = "LookupId do atendimento a ser cancelado.")
+                                                    UUID lookupId) throws SistemaException;
 
 }

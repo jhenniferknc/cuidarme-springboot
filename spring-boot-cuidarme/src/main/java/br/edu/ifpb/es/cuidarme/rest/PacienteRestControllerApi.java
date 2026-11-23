@@ -85,22 +85,31 @@ public interface PacienteRestControllerApi {
                                  UUID lookupId) throws SistemaException;
 
     @Operation(summary = "Cadastrar um novo atendimento para um paciente.",
-            description = "Cria e associa um novo registro de atendimento a um paciente existente, utilizando o UUID do paciente.")
+            description = "Cria e associa um novo atendimento a um paciente existente. O app pode enviar o lookupId do atendimento "
+                    + "(gerado offline); se esse atendimento já existir para o mesmo paciente, a chamada é tratada como reenvio e retorna 200.")
     @ApiResponses(value = {
+            @ApiResponse(responseCode = "201",
+                    description = "Atendimento cadastrado.",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = AtendimentoResponseDTO.class))),
             @ApiResponse(responseCode = "200",
-                    description = "Atendimento cadastrado com sucesso. Retorna os dados do atendimento criado.",
+                    description = "Reenvio: o atendimento com este lookupId já existia e foi devolvido sem alterações.",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = AtendimentoResponseDTO.class))),
             @ApiResponse(responseCode = "400",
-                    description = "Dados inválidos fornecidos no corpo da requisição (ex: data ou localidade ausentes).",
+                    description = "Dados inválidos (ex: data ou localidade ausentes).",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ProblemDetail.class))),
             @ApiResponse(responseCode = "404",
-                    description = "Paciente não encontrado com o ID fornecido na URL.",
+                    description = "Paciente não encontrado.",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "409",
+                    description = "lookupId já usado por atendimento de outro paciente.",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ProblemDetail.class))),
             @ApiResponse(responseCode = "500",
-                    description = "Erro inesperado no servidor.",
+                    description = "Erro inesperado.",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ProblemDetail.class))),
     })

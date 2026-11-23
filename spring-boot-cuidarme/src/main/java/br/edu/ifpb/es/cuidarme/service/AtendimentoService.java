@@ -1,5 +1,7 @@
 package br.edu.ifpb.es.cuidarme.service;
 
+import br.edu.ifpb.es.cuidarme.exception.EstadoInvalidoException;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -49,6 +51,29 @@ public class AtendimentoService {
     public Page<Atendimento> buscar(AtendimentoBuscarDTO dto) {
         PageRequest pageRequest = PageRequest.of(dto.getNumeroPagina(), dto.getTamanhoPagina());
         return repository.buscarPor(dto, pageRequest);
+    }
+
+    @Transactional
+    public Atendimento remarcar(Atendimento obj, LocalDateTime novaData, String novaLocalidade) throws EstadoInvalidoException {
+        if (obj.getStatus() == StatusAtendimento.CANCELADO || obj.getStatus() == StatusAtendimento.CONCLUIDO) {
+            throw new EstadoInvalidoException("Não é possível remarcar um atendimento " + obj.getStatus().name().toLowerCase() + ".");
+        }
+        obj.setData(novaData);
+        obj.setLocalidade(novaLocalidade);
+        obj.setStatus(StatusAtendimento.REMARCADO);
+        return repository.save(obj);
+    }
+
+    @Transactional
+    public Atendimento cancelar(Atendimento obj) throws EstadoInvalidoException {
+        if (obj.getStatus() == StatusAtendimento.CANCELADO) {
+            return obj;
+        }
+        if (obj.getStatus() == StatusAtendimento.CONCLUIDO) {
+            throw new EstadoInvalidoException("Não é possível cancelar um atendimento concluído.");
+        }
+        obj.setStatus(StatusAtendimento.CANCELADO);
+        return repository.save(obj);
     }
 
 }

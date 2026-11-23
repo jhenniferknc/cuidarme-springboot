@@ -13,6 +13,7 @@ import br.edu.ifpb.es.cuidarme.model.Atendimento;
 import br.edu.ifpb.es.cuidarme.model.Pagamento;
 import br.edu.ifpb.es.cuidarme.model.StatusAtendimento;
 import br.edu.ifpb.es.cuidarme.model.StatusPagamento;
+import br.edu.ifpb.es.cuidarme.rest.dto.Atendimento.AtendimentoRemarcarDTO;
 import br.edu.ifpb.es.cuidarme.rest.dto.Atendimento.AtendimentoResponseDTO;
 import br.edu.ifpb.es.cuidarme.rest.dto.Atendimento.AtendimentoSalvarRequestDTO;
 import br.edu.ifpb.es.cuidarme.rest.dto.Pagamento.PagamentoResponseDTO;
@@ -95,6 +96,22 @@ public class AtendimentoRestController implements AtendimentoRestControllerApi {
         AtendimentoResponseDTO resultado = atendimentoMapper.from(objAtualizado);
 
         return new ResponseEntity<>(resultado, HttpStatus.OK);
+    }
+
+    @Override
+    @PatchMapping("/remarcar/{atendimentoId}")
+    public ResponseEntity<AtendimentoResponseDTO> remarcar(@PathVariable UUID atendimentoId, @RequestBody @Valid AtendimentoRemarcarDTO dto) throws SistemaException {
+        Atendimento obj = validarExiste(atendimentoId);
+        Atendimento remarcado = atendimentoService.remarcar(obj, dto.getData(), dto.getLocalidade());
+        return new ResponseEntity<>(atendimentoMapper.from(remarcado), HttpStatus.OK);
+    }
+
+    @Override
+    @PatchMapping("/cancelar/{atendimentoId}")
+    public ResponseEntity<AtendimentoResponseDTO> cancelar(@PathVariable UUID atendimentoId) throws SistemaException {
+        Atendimento obj = validarExiste(atendimentoId);
+        Atendimento cancelado = atendimentoService.cancelar(obj);
+        return new ResponseEntity<>(atendimentoMapper.from(cancelado), HttpStatus.OK);
     }
 
     private Atendimento validarExiste(UUID lookupId) throws SistemaException {
